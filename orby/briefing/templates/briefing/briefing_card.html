@@ -1,0 +1,19 @@
+<h2 class="mt-5 text-center">🌅 Smart Daily Briefing</h2>
+<div class="bg-white p-4 rounded shadow-sm mb-4">
+  <div class="d-flex align-items-center mb-3">
+    <span class="badge bg-info text-dark fs-6 px-3 py-2 me-2">Today</span>
+    <h5 class="mb-0 text-dark">Here’s what’s happening:</h5>
+  </div>
+  <div class="briefing-content">
+    <ul class="list-unstyled ps-2">
+      {% for item in briefing.splitlines %}
+        {% if item.strip %}
+        <li class="mb-2 d-flex">
+          <span class="me-2 text-primary">&#8226;</span>
+          <span style="white-space: pre-wrap;">{{ item }}</span>
+        </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+</div>
