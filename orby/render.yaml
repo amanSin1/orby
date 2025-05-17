@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: orby
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn orby.wsgi"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: orby.settings
+    preDeployCommand: "python manage.py migrate"
