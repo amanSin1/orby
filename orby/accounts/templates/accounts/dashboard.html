@@ -87,11 +87,12 @@
         <img src="https://via.placeholder.com/120" alt="No Profile Picture" class="profile-pic">
       {% endif %}
     </div>
+<div class="text-center my-4 d-flex justify-content-center gap-3 flex-wrap">
+  <a href="{% url 'add_meeting' %}" class="btn btn-primary">📅 Add Meeting</a>
+  <a href="{% url 'task_list' %}" class="btn btn-info">📝 Tasks</a>
+  <a href="{% url 'documents:document_list' %}" class="btn btn-outline-secondary">📂 My Documents</a>
+</div>
 
-    <div class="text-center my-4">
-      <a href="{% url 'add_meeting' %}" class="btn btn-primary">Add Meeting</a>
-    </div>
-    <a href="{% url 'task_list' %}" class="btn btn-info">📝 Tasks</a>
 
 
     <hr>

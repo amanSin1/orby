@@ -30,11 +30,10 @@ import os
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-
 
 
 # Application definition
@@ -48,8 +47,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'briefing',
-    'todo'
-    
+    'todo',
+    'documents',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -63,6 +63,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'orby.urls'
+# Maximum upload file size (10 MB)
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024
 
 TEMPLATES = [
     {

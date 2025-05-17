@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Document Viewer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- PDF.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f8f9fa;
+      padding: 2rem;
+    }
+
+    h1, h2 {
+      color: #343a40;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .card {
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      border-radius: 8px 8px 0 0;
+    }
+
+    .document-viewer {
+      width: 100%;
+      height: 600px;
+      border: 1px solid #ddd;
+      margin-top: 20px;
+      background-color: #f5f5f5;
+      overflow: auto;
+    }
+
+    .document-container {
+      position: relative;
+      width: 100%;
+      min-height: 600px;
+    }
+    
+    .fallback-message {
+      padding: 20px;
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    #pdfViewer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pdf-controls {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .page-info {
+      display: flex;
+      align-items: center;
+      margin: 0 10px;
+    }
+
+    .loading-indicator {
+      text-align: center;
+      padding: 20px;
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-md-10">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>{{ document.title }}</h2>
+            <div>
+              <button id="downloadBtn" class="btn btn-success">
+                <i class="fas fa-download"></i> Download
+              </button>
+              <button id="deleteBtn" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <h5>Document Details</h5>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">
+                    <strong>File Type:</strong> 
+                    <i class="fas fa-file-pdf text-danger"></i>
+                    PDF
+                  </li>
+                  <li class="list-group-item"><strong>Size:</strong> 250 KB</li>
+                  <li class="list-group-item"><strong>Category:</strong> Reports</li>
+                  <li class="list-group-item"><strong>Uploaded:</strong> May 15, 2025</li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <h5>Description</h5>
+                <div class="card">
+                  <div class="card-body">
+                    Sample document description here.
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="document-container">
+              <div id="viewerOptions" class="mb-3">
+                <div class="btn-group" role="group">
+                  <button id="usePdfJs" class="btn btn-outline-primary active">PDF.js Viewer</button>
+                  <button id="useGoogleViewer" class="btn btn-outline-primary">Google Viewer</button>
+                  <button id="useDownloadOnly" class="btn btn-outline-primary">Download Only</button>
+                </div>
+              </div>
+            
+              <div id="documentViewer" class="document-viewer">
+                <!-- Document viewer content will be placed here -->
+                <div id="pdfViewer">
+                  <div class="pdf-controls">
+                    <button id="prevPage" class="btn btn-sm btn-primary">
+                      <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <div class="page-info">
+                      Page <span id="currentPage">1</span> of <span id="totalPages">?</span>
+                    </div>
+                    <button id="nextPage" class="btn btn-sm btn-primary">
+                      Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <select id="zoomLevel" class="form-select form-select-sm" style="width: 120px;">
+                      <option value="0.5">50%</option>
+                      <option value="0.75">75%</option>
+                      <option value="1" selected>100%</option>
+                      <option value="1.25">125%</option>
+                      <option value="1.5">150%</option>
+                      <option value="2">200%</option>
+                    </select>
+                  </div>
+                  <div class="loading-indicator">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading document...</p>
+                  </div>
+                  <canvas id="pdfCanvas"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button id="backBtn" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left"></i> Back to Documents
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Set PDF.js worker path
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    
+    let pdfDoc = null;
+    let pageNum = 1;
+    let pageRendering = false;
+    let pageNumPending = null;
+    let scale = 1.0;
+    let canvas = document.getElementById('pdfCanvas');
+    let ctx = canvas.getContext('2d');
+    
+    document.addEventListener('DOMContentLoaded', function() {
+    
+      // Use the Django template variables for document URL and title
+const documentUrl = '{{ document.file.url }}';
+const documentTitle = '{{ document.title }}';
+      
+      // Initialize with PDF.js viewer
+      initPdfJsViewer(documentUrl);
+      
+      // Viewer type switcher
+      document.getElementById('usePdfJs').addEventListener('click', function() {
+        setActiveButton(this);
+        initPdfJsViewer(documentUrl);
+      });
+      
+      document.getElementById('useGoogleViewer').addEventListener('click', function() {
+        setActiveButton(this);
+        initGoogleViewer(documentUrl);
+      });
+      
+      document.getElementById('useDownloadOnly').addEventListener('click', function() {
+        setActiveButton(this);
+        initDownloadOnlyView(documentUrl, documentTitle);
+      });
+      
+      // PDF.js controls
+      document.getElementById('prevPage').addEventListener('click', onPrevPage);
+      document.getElementById('nextPage').addEventListener('click', onNextPage);
+      document.getElementById('zoomLevel').addEventListener('change', function() {
+        scale = parseFloat(this.value);
+        queueRenderPage(pageNum);
+      });
+      
+      // Download button
+      document.getElementById('downloadBtn').addEventListener('click', function() {
+        const link = document.createElement('a');
+        link.href = documentUrl;
+        link.download = documentTitle;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+      
+      // Back button (example redirect)
+      document.getElementById('backBtn').addEventListener('click', function() {
+        window.location.href = '/documents/';
+      });
+      
+      // Delete button (example implementation)
+      document.getElementById('deleteBtn').addEventListener('click', function() {
+        if (confirm('Are you sure you want to delete this document?')) {
+          // Add your delete functionality here
+          alert('Delete functionality would go here');
+        }
+      });
+    });
+    
+    function setActiveButton(button) {
+      document.querySelectorAll('#viewerOptions .btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      button.classList.add('active');
+    }
+    
+    function initPdfJsViewer(url) {
+      const viewerContainer = document.getElementById('documentViewer');
+      viewerContainer.innerHTML = `
+        <div id="pdfViewer">
+          <div class="pdf-controls">
+            <button id="prevPage" class="btn btn-sm btn-primary">
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <div class="page-info">
+              Page <span id="currentPage">1</span> of <span id="totalPages">?</span>
+            </div>
+            <button id="nextPage" class="btn btn-sm btn-primary">
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+            <select id="zoomLevel" class="form-select form-select-sm" style="width: 120px;">
+              <option value="0.5">50%</option>
+              <option value="0.75">75%</option>
+              <option value="1" selected>100%</option>
+              <option value="1.25">125%</option>
+              <option value="1.5">150%</option>
+              <option value="2">200%</option>
+            </select>
+          </div>
+          <div class="loading-indicator">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Loading document...</p>
+          </div>
+          <canvas id="pdfCanvas"></canvas>
+        </div>
+      `;
+      
+      // Reset variables
+      canvas = document.getElementById('pdfCanvas');
+      ctx = canvas.getContext('2d');
+      pageNum = 1;
+      scale = 1.0;
+      
+      // Re-attach event listeners
+      document.getElementById('prevPage').addEventListener('click', onPrevPage);
+      document.getElementById('nextPage').addEventListener('click', onNextPage);
+      document.getElementById('zoomLevel').addEventListener('change', function() {
+        scale = parseFloat(this.value);
+        queueRenderPage(pageNum);
+      });
+      
+      // Load the PDF
+      loadPdf(url);
+    }
+    
+    function loadPdf(url) {
+      pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
+        pdfDoc = pdfDoc_;
+        document.getElementById('totalPages').textContent = pdfDoc.numPages;
+        
+        // Hide loading indicator
+        document.querySelector('.loading-indicator').style.display = 'none';
+        
+        // Render the first page
+        renderPage(pageNum);
+      }).catch(function(error) {
+        console.error('Error loading PDF:', error);
+        document.querySelector('.loading-indicator').innerHTML = `
+          <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            Error loading PDF: ${error.message}
+          </div>
+        `;
+      });
+    }
+    
+    function renderPage(num) {
+      pageRendering = true;
+      
+      // Update page counter
+      document.getElementById('currentPage').textContent = num;
+      
+      // Show loading indicator while rendering
+      document.querySelector('.loading-indicator').style.display = 'block';
+      
+      // Get page
+      pdfDoc.getPage(num).then(function(page) {
+        const viewport = page.getViewport({ scale: scale });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        
+        // Render PDF page into canvas context
+        const renderContext = {
+          canvasContext: ctx,
+          viewport: viewport
+        };
+        
+        const renderTask = page.render(renderContext);
+        
+        // Wait for rendering to finish
+        renderTask.promise.then(function() {
+          pageRendering = false;
+          
+          // Hide loading indicator
+          document.querySelector('.loading-indicator').style.display = 'none';
+          
+          if (pageNumPending !== null) {
+            // New page rendering is pending
+            renderPage(pageNumPending);
+            pageNumPending = null;
+          }
+        });
+      });
+    }
+    
+    function queueRenderPage(num) {
+      if (pageRendering) {
+        pageNumPending = num;
+      } else {
+        renderPage(num);
+      }
+    }
+    
+    function onPrevPage() {
+      if (pageNum <= 1) {
+        return;
+      }
+      pageNum--;
+      queueRenderPage(pageNum);
+    }
+    
+    function onNextPage() {
+      if (pageNum >= pdfDoc.numPages) {
+        return;
+      }
+      pageNum++;
+      queueRenderPage(pageNum);
+    }
+    
+    function initGoogleViewer(url) {
+      // Get absolute URL
+      const absoluteUrl = new URL(url, window.location.origin).href;
+      const encodedUrl = encodeURIComponent(absoluteUrl);
+      const googleViewerUrl = `https://docs.google.com/viewer?url=${encodedUrl}&embedded=true`;
+      
+      const viewerContainer = document.getElementById('documentViewer');
+      viewerContainer.innerHTML = `
+        <iframe src="${googleViewerUrl}" width="100%" height="100%" frameborder="0"></iframe>
+      `;
+    }
+    
+    function initDownloadOnlyView(url, title) {
+      const viewerContainer = document.getElementById('documentViewer');
+      viewerContainer.innerHTML = `
+        <div class="fallback-message" style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
+          <i class="fas fa-file-pdf text-danger" style="font-size: 64px; margin-bottom: 20px;"></i>
+          <h4>Your browser doesn't support embedded PDFs</h4>
+          <p>You can download the document and view it using a PDF reader application.</p>
+          <button class="btn btn-primary mt-3" onclick="window.open('${url}', '_blank')">
+            <i class="fas fa-download"></i> Download Document
+          </button>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

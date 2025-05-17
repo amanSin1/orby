@@ -10,6 +10,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('', home, name='home'),
     path('tasks/', include('todo.urls')),
+    path('documents/', include('documents.urls', namespace='documents')),
 
 ]
 
