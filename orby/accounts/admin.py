@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import CustomUser
+from .models import CustomUser, Meeting
 
 class CustomUserAdmin(BaseUserAdmin):
     model = CustomUser
@@ -22,3 +22,4 @@ class CustomUserAdmin(BaseUserAdmin):
     )
 
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Meeting)

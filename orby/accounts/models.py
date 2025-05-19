@@ -44,6 +44,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 from django.db import models
 from django.conf import settings
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 
 class Meeting(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -51,6 +59,30 @@ class Meeting(models.Model):
     description = models.TextField(blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-
+    reminder_scheduled = models.BooleanField(default=False)
+    
     def __str__(self):
         return f"{self.title} ({self.start_time} - {self.end_time})"
+    
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)  # Save to get ID if new
+
+        if is_new or not self.reminder_scheduled:
+            self.schedule_reminder()
+
+    def schedule_reminder(self):
+        from .tasks import send_meeting_reminder_email
+
+        # Ensure start_time is timezone-aware
+        start_time_aware = timezone.localtime(self.start_time)
+
+        reminder_time = start_time_aware - timedelta(minutes=15)
+
+        if reminder_time > timezone.localtime():
+            send_meeting_reminder_email.apply_async(
+                args=[self.id],
+                eta=reminder_time  # ⬅️ exact scheduled time
+            )
+            self.reminder_scheduled = True
+            Meeting.objects.filter(pk=self.pk).update(reminder_scheduled=True)
