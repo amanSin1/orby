@@ -1,87 +1,10 @@
 services:
-  # Main Django Web Service
   - type: web
-    name: orby-web
+    name: orby
     env: python
-    region: singapore
-    plan: free
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: gunicorn orby.wsgi:application
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn orby.wsgi"
     envVars:
-      - key: REDIS_URL
-        value: redis://red-d0lda8juibrs73a7agk0:6379
-      - key: SECRET_KEY
-        generateValue: true
-      - key: DEBUG
-        value: "False"
-      - key: EMAIL_HOST
-        value: smtp.gmail.com
-      - key: EMAIL_PORT
-        value: "587"
-      - key: EMAIL_USE_TLS
-        value: "True"
-      - key: EMAIL_HOST_USER
-        sync: false
-      - key: EMAIL_HOST_PASSWORD
-        sync: false
-      - key: DEFAULT_FROM_EMAIL
-        sync: false
-
-  # Celery Worker
-  - type: worker
-    name: orby-worker
-    env: python
-    region: singapore
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: celery -A orby worker -l info
-    envVars:
-      - key: REDIS_URL
-        value: redis://red-d0lda8juibrs73a7agk0:6379
-      - key: SECRET_KEY
-        generateValue: true
-      - key: DEBUG
-        value: "False"
-      - key: EMAIL_HOST
-        value: smtp.gmail.com
-      - key: EMAIL_PORT
-        value: "587"
-      - key: EMAIL_USE_TLS
-        value: "True"
-      - key: EMAIL_HOST_USER
-        sync: false
-      - key: EMAIL_HOST_PASSWORD
-        sync: false
-      - key: DEFAULT_FROM_EMAIL
-        sync: false
-
-  # Celery Beat (scheduler)
-  - type: worker
-    name: orby-beat
-    env: python
-    region: singapore
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: celery -A orby beat -l info
-    envVars:
-      - key: REDIS_URL
-        value: redis://red-d0lda8juibrs73a7agk0:6379
-      - key: SECRET_KEY
-        generateValue: true
-      - key: DEBUG
-        value: "False"
-      - key: EMAIL_HOST
-        value: smtp.gmail.com
-      - key: EMAIL_PORT
-        value: "587"
-      - key: EMAIL_USE_TLS
-        value: "True"
-      - key: EMAIL_HOST_USER
-        sync: false
-      - key: EMAIL_HOST_PASSWORD
-        sync: false
-      - key: DEFAULT_FROM_EMAIL
-        sync: false
-
-# Redis Instance (already created separately, so not needed here if already running)
-# This is just FYI - you've created it manually and linked by its internal URL
+      - key: DJANGO_SETTINGS_MODULE
+        value: orby.settings
+    preDeployCommand: "python manage.py migrate"

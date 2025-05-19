@@ -148,24 +148,23 @@ import os
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 QUOTE_API_KEY = os.getenv("QUOTE_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
-  # Set to your timezone
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Kolkata'  # Set to your timezone
 
 # Install django-celery-beat for periodic tasks
 INSTALLED_APPS += ['django_celery_beat']
 
-## Redis for Celery
-CELERY_BROKER_URL = os.getenv("REDIS_URL")
-CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Asia/Kolkata'
-
-# Email
+# Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv("EMAIL_HOST")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+EMAIL_HOST = 'smtp.gmail.com'  # Or your preferred email service
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'kullumanali0123@gmail.com'  # Update with your email
+EMAIL_HOST_PASSWORD = 'byzi ekun pesq ajkx'  # Use app-specific password for Gmail
+DEFAULT_FROM_EMAIL = 'kullumanali0123@gmail.com'  # Update with your email
+
