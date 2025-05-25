@@ -20,8 +20,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-lx0yf@u7^_3&q1!@m)q1c(o)ni+x28#n)fw0(1=nfs=dra#=0h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -153,7 +151,7 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 INSTALLED_APPS += ['django_celery_beat']
 
 from decouple import config
-
+SECRET_KEY = config('SECRET_KEY')
 # Redis / Celery settings
 CELERY_BROKER_URL = config('CELERY_BROKER_URL')
 CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND')
