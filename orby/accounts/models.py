@@ -2,6 +2,10 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.utils import timezone
 
+from django.conf import settings
+
+from datetime import timedelta
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -42,16 +46,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-from django.db import models
-from django.conf import settings
-from django.db import models
-from django.conf import settings
-from django.utils import timezone
-from datetime import timedelta
-from django.db import models
-from django.conf import settings
-from django.utils import timezone
-from datetime import timedelta
+
+
 
 class Meeting(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

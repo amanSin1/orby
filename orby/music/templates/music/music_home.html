@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player - Simple</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .music-interface {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .search-btn {
+            padding: 15px 25px;
+            background: #ff4757;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .search-btn:hover {
+            background: #ff3742;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .video-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: transform 0.3s;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .video-player {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .video-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.1rem;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <a href="{% url 'dashboard' %}" class="back-btn">← Back to Dashboard</a>
+
+        
+        <div class="header">
+            <h1>🎵 Music Player</h1>
+            <p>Search and play music from YouTube</p>
+        </div>
+
+        <div class="music-interface">
+            <div class="search-section">
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="searchPreset('lofi hip hop')">Lofi Hip Hop</button>
+                    <button class="preset-btn" onclick="searchPreset('chill music')">Chill Music</button>
+                    <button class="preset-btn" onclick="searchPreset('pop music 2024')">Pop Hits</button>
+                    <button class="preset-btn" onclick="searchPreset('rock music')">Rock</button>
+                    <button class="preset-btn" onclick="searchPreset('jazz music')">Jazz</button>
+                    <button class="preset-btn" onclick="searchPreset('classical music')">Classical</button>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search for any song, artist, or genre...">
+                    <button class="search-btn" onclick="searchMusic()">🔍 Search</button>
+                </div>
+            </div>
+
+            <div id="loadingIndicator" class="loading" style="display: none;">
+                🎵 Loading music...
+            </div>
+
+            <div id="videoGrid" class="video-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // YouTube API key - you'll need to get this from Google Cloud Console
+        const API_KEY = 'AIzaSyC83IkNYswvVCSuq-0nTTfxu6WacMjMsZI'; // Replace with your actual API key
+        
+        function searchMusic() {
+            const query = document.getElementById('searchInput').value;
+            if (!query.trim()) return;
+            performSearch(query);
+        }
+
+        function searchPreset(query) {
+            document.getElementById('searchInput').value = query;
+            performSearch(query);
+        }
+
+        function performSearch(query) {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const videoGrid = document.getElementById('videoGrid');
+
+            loadingIndicator.style.display = 'block';
+            videoGrid.innerHTML = '';
+
+            // If no API key, show embedded search results
+            if (API_KEY === 'YOUR_YOUTUBE_API_KEY') {
+                showEmbeddedResults(query);
+                return;
+            }
+
+            // With API key, fetch actual results
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&maxResults=12&key=${API_KEY}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    loadingIndicator.style.display = 'none';
+                    displayVideos(data.items);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingIndicator.style.display = 'none';
+                    showEmbeddedResults(query);
+                });
+        }
+
+        function showEmbeddedResults(query) {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const videoGrid = document.getElementById('videoGrid');
+            
+            loadingIndicator.style.display = 'none';
+            
+            // Show some popular embedded videos for the search term
+            const embedUrls = [
+                `https://www.youtube.com/embed/jfKfPfyJRdk?si=abc123`, // lofi girl
+                `https://www.youtube.com/embed/5qap5aO4i9A?si=def456`, // chilled cow
+                `https://www.youtube.com/embed/DWcJFNfaw9c?si=ghi789`  // lofi playlist
+            ];
+
+            videoGrid.innerHTML = embedUrls.map((url, index) => `
+                <div class="video-card">
+                    <iframe class="video-player" src="${url}" frameborder="0" allowfullscreen></iframe>
+                    <div class="video-info">
+                        <h3>Music Playlist ${index + 1}</h3>
+                        <p>Enjoy this curated music selection</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayVideos(videos) {
+            const videoGrid = document.getElementById('videoGrid');
+            
+            const videoHTML = videos.map(video => `
+                <div class="video-card">
+                    <iframe class="video-player" 
+                            src="https://www.youtube.com/embed/${video.id.videoId}" 
+                            frameborder="0" 
+                            allowfullscreen>
+                    </iframe>
+                    <div class="video-info">
+                        <h3>${video.snippet.title}</h3>
+                        <p>${video.snippet.channelTitle}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            videoGrid.innerHTML = videoHTML;
+        }
+
+        // Allow search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchMusic();
+            }
+        });
+
+        // Load some default content
+        window.onload = function() {
+            searchPreset('lofi hip hop');
+        };
+    </script>
+</body>
+</html>

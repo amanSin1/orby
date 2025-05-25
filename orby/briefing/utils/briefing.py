@@ -3,6 +3,7 @@ import requests
 from datetime import datetime, time
 from django.conf import settings
 from django.utils import timezone
+from django.utils.timezone import localtime
 from accounts.models import Meeting
 
 
@@ -115,7 +116,7 @@ def generate_daily_brief(user, request):
 
     if today_meetings.exists():
         meeting_lines = [
-            f"📅 {m.title} at {m.start_time.strftime('%I:%M %p')}" for m in today_meetings
+            f"📅 {m.title} at {localtime(m.start_time).strftime('%I:%M %p')}" for m in today_meetings
         ]
     else:
         meeting_lines = ["📅 No upcoming meetings today."]

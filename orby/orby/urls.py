@@ -11,7 +11,7 @@ urlpatterns = [
     path('', home, name='home'),
     path('tasks/', include('todo.urls')),
     path('documents/', include('documents.urls', namespace='documents')),
-
+    path('music/', include('music.urls')),
 ]
 
 # ✅ This line makes Django serve media files in development

@@ -5,126 +5,907 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      --dark-bg: #0f0f23;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.12);
+      --shadow-heavy: 0 16px 64px rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #f8f9fa;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .floating-elements {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .floating-element {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) {
+      width: 80px;
+      height: 80px;
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .floating-element:nth-child(2) {
+      width: 60px;
+      height: 60px;
+      top: 70%;
+      right: 10%;
+      animation-delay: 2s;
+    }
+
+    .floating-element:nth-child(3) {
+      width: 100px;
+      height: 100px;
+      top: 40%;
+      left: 80%;
+      animation-delay: 4s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-20px) rotate(120deg); }
+      66% { transform: translateY(10px) rotate(240deg); }
+    }
+
+    .main-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
       padding: 2rem;
     }
 
-    h1, h2 {
-      color: #343a40;
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      box-shadow: var(--shadow-medium);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .btn-primary {
-      background-color: #007bff;
-      border: none;
+    .glass-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-heavy);
     }
 
-    .btn-primary:hover {
-      background-color: #0056b3;
+    .header-section {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeInUp 0.8s ease-out;
     }
 
-    .chat-container {
-      margin-top: 2rem;
-      padding: 1rem;
-      background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    .welcome-title {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      animation: textShine 3s ease-in-out infinite;
     }
 
-    .chat-bubble {
-      margin: 0.5rem 0;
-      padding: 1rem;
-      border-radius: 12px;
-      background: #e9ecef;
+    @keyframes textShine {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.2); }
     }
 
-    .chat-bubble.user {
-      background: #007bff;
-      color: white;
-      text-align: right;
+    .profile-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 2rem 0;
+      position: relative;
     }
 
-    .chat-bubble.ai {
-      background: #f1f1f1;
-      text-align: left;
-    }
-
-    .form-control {
-      border-radius: 20px;
-    }
-
-    .chat-response {
-      margin-top: 1rem;
+    .profile-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 1.5rem;
     }
 
     .profile-pic {
-      width: 120px;
-      height: 120px;
+      width: 150px;
+      height: 150px;
       object-fit: cover;
       border-radius: 50%;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      margin-bottom: 1rem;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      box-shadow: var(--shadow-medium);
+      transition: all 0.3s ease;
+      animation: profilePulse 4s ease-in-out infinite;
     }
 
-    @media (max-width: 768px) {
-      input[type="text"] {
-        width: 100%;
+    @keyframes profilePulse {
+      0%, 100% { transform: scale(1); box-shadow: var(--shadow-medium); }
+      50% { transform: scale(1.05); box-shadow: var(--shadow-heavy); }
+    }
+
+    .profile-ring {
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      width: calc(100% + 16px);
+      height: calc(100% + 16px);
+      border: 2px solid transparent;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #667eea, #764ba2, #f093fb) border-box;
+      mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      animation: rotate 3s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .user-info {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 1.5rem 2rem;
+      box-shadow: var(--shadow-light);
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.8s ease-out 0.3s both;
+    }
+
+    .user-info:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+    }
+
+    .user-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-greeting {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 1rem;
+      font-weight: 400;
+    }
+
+    .mood-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-size: 0.9rem;
+      color: white;
+      font-weight: 500;
+      animation: moodFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes moodFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .mood-emoji {
+      font-size: 1.2rem;
+      animation: emojiSpin 4s ease-in-out infinite;
+    }
+
+    @keyframes emojiSpin {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-5deg) scale(1.1); }
+      75% { transform: rotate(5deg) scale(1.1); }
+    }
+
+    .time-greeting {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+    }
+
+    .action-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: var(--text-primary);
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .action-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.8s ease;
+    }
+
+    .action-card:hover::before {
+      left: 100%;
+    }
+
+    .action-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: var(--shadow-heavy);
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .action-card.primary {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    }
+
+    .action-card.success {
+      background: linear-gradient(135deg, rgba(75, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+    }
+
+    .action-card.warning {
+      background: linear-gradient(135deg, rgba(67, 233, 123, 0.1), rgba(56, 249, 215, 0.1));
+    }
+
+    .action-card.music {
+      background: linear-gradient(135deg, rgba(29, 185, 84, 0.1), rgba(30, 215, 96, 0.1));
+    }
+
+    .card-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: iconFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .card-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .chat-section {
+      margin-top: 4rem;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .chat-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .chat-title {
+      font-size: 2rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .chat-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: var(--shadow-medium);
+    }
+
+    .chat-form {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .chat-input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .send-btn {
+      padding: 1rem 2rem;
+      background: var(--primary-gradient);
+      border: none;
+      border-radius: 50px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-light);
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+    }
+
+    .chat-bubble {
+      margin: 1rem 0;
+      padding: 1.5rem;
+      border-radius: 20px;
+      animation: messageSlide 0.5s ease-out;
+      position: relative;
+    }
+
+    .chat-bubble.user {
+      background: var(--primary-gradient);
+      color: white;
+      margin-left: 20%;
+      border-bottom-right-radius: 8px;
+    }
+
+    .chat-bubble.ai {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--text-primary);
+      margin-right: 20%;
+      border-bottom-left-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    @keyframes messageSlide {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
       }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .full-chat-btn {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      background: var(--secondary-gradient);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-light);
+    }
+
+    .full-chat-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+      color: white;
+      text-decoration: none;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .briefing-section {
+      margin: 3rem 0;
+      animation: fadeInUp 0.9s ease-out;
+    }
+
+    .briefing-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .briefing-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      animation: textPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes textPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .briefing-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: var(--shadow-medium);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .briefing-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #f093fb, #f5576c, #43e97b, #38f9d7);
+      background-size: 300% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -300% 0; }
+      100% { background-position: 300% 0; }
+    }
+
+    .briefing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    .briefing-header-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .today-badge {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1rem;
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+      animation: badgePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3); }
+      50% { transform: scale(1.05); box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4); }
+    }
+
+    .briefing-subtitle {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .briefing-content {
+      position: relative;
+    }
+
+    .briefing-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .briefing-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 16px;
+      border-left: 4px solid transparent;
+      transition: all 0.3s ease;
+      animation: slideInLeft 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .briefing-item:nth-child(1) { animation-delay: 0.1s; border-left-color: #667eea; }
+    .briefing-item:nth-child(2) { animation-delay: 0.2s; border-left-color: #f093fb; }
+    .briefing-item:nth-child(3) { animation-delay: 0.3s; border-left-color: #43e97b; }
+    .briefing-item:nth-child(4) { animation-delay: 0.4s; border-left-color: #4facfe; }
+    .briefing-item:nth-child(n+5) { animation-delay: 0.5s; border-left-color: #f5576c; }
+
+    .briefing-item:hover {
+      transform: translateX(8px);
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .briefing-bullet {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin-right: 1rem;
+      margin-top: 0.25rem;
+      flex-shrink: 0;
+      animation: bulletPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes bulletPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    .briefing-text {
+      color: var(--text-primary);
+      font-size: 1rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      flex: 1;
+    }
+
+    .empty-briefing {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-briefing-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .empty-briefing-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 1rem;
+      }
+      
+      .welcome-title {
+        font-size: 2rem;
+      }
+      
+      .profile-pic {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .chat-form {
+        flex-direction: column;
+      }
+      
+      .chat-bubble.user,
+      .chat-bubble.ai {
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
+  <div class="floating-elements">
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+  </div>
 
-  <div class="container">
-    <h1 class="text-center">Welcome, {{ user.full_name }}!</h1>
-
-    <div class="text-center mt-3">
-      {% if user.profile_picture %}
-        <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
-      {% else %}
-        <img src="https://via.placeholder.com/120" alt="No Profile Picture" class="profile-pic">
-      {% endif %}
-    </div>
-<div class="text-center my-4 d-flex justify-content-center gap-3 flex-wrap">
-  <a href="{% url 'add_meeting' %}" class="btn btn-primary">📅 Add Meeting</a>
-  <a href="{% url 'task_list' %}" class="btn btn-info">📝 Tasks</a>
-  <a href="{% url 'documents:document_list' %}" class="btn btn-outline-secondary">📂 My Documents</a>
-</div>
-
-
-
-    <hr>
-
-    {% include 'briefing/briefing_card.html' %} 
-
-    <h2>Ask AI about your meetings</h2>
-    <div class="chat-container">
-      <form id="chat-form" class="d-flex">
-        {% csrf_token %}
-        <input type="text" id="user-input" name="message" class="form-control me-2" placeholder="e.g. What’s on my schedule today?" required>
-        <button type="submit" class="btn btn-primary">Send</button>
-      </form>
-
-      <div id="chat-response" class="chat-response">
-        <div class="chat-bubble ai">
-          <strong>AI:</strong> <span id="chat-message">Ask something to get started!</span>
+  <div class="main-container">
+    <div class="header-section">
+      <h1 class="welcome-title">Orby</h1>
+      
+      <div class="profile-section">
+        <div class="profile-container">
+          <div class="profile-ring"></div>
+          {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+          {% else %}
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAwJjPfkIoSJhPKzrE6oavmMdUi_SfcTr0nw&s" alt="No Profile Picture" class="profile-pic">
+          {% endif %}
+        </div>
+        
+        <div class="user-info">
+          <div class="user-name">{{ user.full_name }}</div>
+          <div class="user-greeting" id="dynamic-greeting">Welcome back!</div>
+          
+          {% if user.mood %}
+            <div class="mood-indicator">
+              <span class="mood-emoji" id="mood-emoji">😊</span>
+              <span>Feeling {{ user.mood }}</span>
+            </div>
+          {% endif %}
+          
+          <div class="time-greeting" id="time-greeting"></div>
         </div>
       </div>
     </div>
 
-    <div class="text-center mt-4">
-      <a href="{% url 'chatbot_page' %}" class="btn btn-outline-primary">Open Full Chatbot Interface</a>
+    <div class="dashboard-grid">
+      <a href="{% url 'add_meeting' %}" class="action-card primary">
+        <div class="card-icon">📅</div>
+        <div class="card-title">Schedule Meeting</div>
+        <div class="card-subtitle">Plan your upcoming appointments</div>
+      </a>
+      
+      <a href="{% url 'task_list' %}" class="action-card success">
+        <div class="card-icon">📝</div>
+        <div class="card-title">Manage Tasks</div>
+        <div class="card-subtitle">Keep track of your to-dos</div>
+      </a>
+      
+      <a href="{% url 'documents:document_list' %}" class="action-card warning">
+        <div class="card-icon">📂</div>
+        <div class="card-title">My Documents</div>
+        <div class="card-subtitle">Access your files and folders</div>
+      </a>
+      
+      <a href="{% url 'music:music_home' %}" class="action-card music">
+        <div class="card-icon">🎵</div>
+        <div class="card-title">Music Player</div>
+        <div class="card-subtitle">Enjoy your favorite tunes</div>
+      </a>
+    </div>
+
+    <div class="briefing-section">
+      <div class="briefing-header">
+        <h2 class="briefing-title">🌅 Smart Daily Briefing</h2>
+      </div>
+      
+      <div class="briefing-card">
+        <div class="briefing-header-content">
+          <span class="today-badge">Today</span>
+          <h5 class="briefing-subtitle">Here's what's happening:</h5>
+        </div>
+        
+        <div class="briefing-content">
+          {% if briefing %}
+            <ul class="briefing-list">
+              {% for item in briefing.splitlines %}
+                {% if item.strip %}
+                <li class="briefing-item">
+                  <div class="briefing-bullet"></div>
+                  <span class="briefing-text">{{ item }}</span>
+                </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="empty-briefing">
+              <div class="empty-briefing-icon">📅</div>
+              <div class="empty-briefing-text">No briefing items for today. Enjoy your free time!</div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-section">
+      <div class="chat-header">
+        <h2 class="chat-title">AI Assistant</h2>
+        <p style="color: var(--text-secondary); margin: 0;">Ask me anything about your schedule and meetings</p>
+      </div>
+      
+      <div class="chat-container">
+        <form id="chat-form" class="chat-form">
+          {% csrf_token %}
+          <input type="text" id="user-input" name="message" class="chat-input" placeholder="What's on my schedule today?" required>
+          <button type="submit" class="send-btn">
+            <span id="send-text">Send</span>
+            <span id="loading" class="loading" style="display: none;"></span>
+          </button>
+        </form>
+
+        <div id="chat-response">
+          <div class="chat-bubble ai">
+            <strong>AI Assistant:</strong> <span id="chat-message">Hello! I'm here to help you with your schedule and meetings. What would you like to know?</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <a href="{% url 'chatbot_page' %}" class="full-chat-btn">Open Full Chat Interface</a>
+      </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // Dynamic greeting based on time of day
+    function updateGreeting() {
+      const now = new Date();
+      const hour = now.getHours();
+      const userName = "{{ user.full_name|first }}"; // First name only for personal touch
+      const greetingElement = document.getElementById('dynamic-greeting');
+      const timeElement = document.getElementById('time-greeting');
+      
+      let greeting = "";
+      let timeMessage = "";
+      
+      if (hour >= 5 && hour < 12) {
+        greeting = `Good morning! Ready to seize the day?`;
+        timeMessage = "☀️ Morning energy activated";
+      } else if (hour >= 12 && hour < 17) {
+        greeting = `Good afternoon! Hope your day is going well.`;
+        timeMessage = "🌤️ Afternoon productivity mode";
+      } else if (hour >= 17 && hour < 21) {
+        greeting = `Good evening! Time to wind down.`;
+        timeMessage = "🌅 Evening reflection time";
+      } else {
+        greeting = `Hey! burning the midnight oil?`;
+        timeMessage = "🌙 Night owl mode activated";
+      }
+      
+      if (greetingElement) greetingElement.textContent = greeting;
+      if (timeElement) timeElement.textContent = timeMessage;
+    }
+
+    // Dynamic mood emoji based on mood
+    function updateMoodEmoji() {
+      const moodEmojiElement = document.getElementById('mood-emoji');
+      const mood = "{{ user.mood|lower }}";
+      
+      if (moodEmojiElement && mood) {
+        const moodEmojis = {
+          'happy': '😊',
+          'excited': '🤩',
+          'calm': '😌',
+          'focused': '🧠',
+          'creative': '🎨',
+          'productive': '💪',
+          'relaxed': '😎',
+          'energetic': '⚡',
+          'confident': '😏',
+          'grateful': '🙏',
+          'motivated': '🔥',
+          'peaceful': '☮️',
+          'tired': '😴',
+          'stressed': '😰',
+          'busy': '🏃‍♂️',
+          'default': '😊'
+        };
+        
+        moodEmojiElement.textContent = moodEmojis[mood] || moodEmojis['default'];
+      }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      updateGreeting();
+      updateMoodEmoji();
+      
+      // Update greeting every hour
+      setInterval(updateGreeting, 3600000);
+    });
+
     document.getElementById('chat-form').addEventListener('submit', function(e) {
       e.preventDefault();
 
       const message = document.getElementById('user-input').value;
+      const sendBtn = document.querySelector('.send-btn');
+      const sendText = document.getElementById('send-text');
+      const loading = document.getElementById('loading');
+
+      // Show loading state
+      sendText.style.display = 'none';
+      loading.style.display = 'inline-block';
+      sendBtn.disabled = true;
 
       fetch("/accounts/chatbot/", {
         method: "POST",
@@ -138,13 +919,24 @@
       .then(data => {
         const chatResponse = document.getElementById('chat-response');
         const userBubble = `<div class="chat-bubble user">${message}</div>`;
-        const aiBubble = `<div class="chat-bubble ai">${data.response}</div>`;
+        const aiBubble = `<div class="chat-bubble ai"><strong>Your Assistant:</strong> ${data.response}</div>`;
         chatResponse.innerHTML += userBubble + aiBubble;
         document.getElementById('user-input').value = '';
+        
+        // Scroll to latest message
+        chatResponse.scrollTop = chatResponse.scrollHeight;
       })
       .catch(error => {
         console.error("Error:", error);
-        document.getElementById('chat-message').innerText = "An error occurred.";
+        const chatResponse = document.getElementById('chat-response');
+        const errorBubble = `<div class="chat-bubble ai"><strong>Your Assistant:</strong> Sorry, I encountered an error. Please try again.</div>`;
+        chatResponse.innerHTML += errorBubble;
+      })
+      .finally(() => {
+        // Reset button state
+        sendText.style.display = 'inline';
+        loading.style.display = 'none';
+        sendBtn.disabled = false;
       });
     });
 
@@ -162,6 +954,16 @@
       }
       return cookieValue;
     }
+
+    // Add smooth scroll behavior
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
   </script>
 </body>
 </html>
