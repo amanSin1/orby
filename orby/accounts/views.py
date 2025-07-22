@@ -144,7 +144,9 @@ def detect_intent(message):
 def chatbot(request):
     if request.method == "POST":
         try:
+            
             # Parse message from request
+
             data = json.loads(request.body)
             user_message = data.get("message", "").strip()
 
@@ -152,6 +154,11 @@ def chatbot(request):
                 return JsonResponse({"response": "Please enter a message."})
 
             user = request.user
+            print("DEBUG :: request.user =", user)
+            print("DEBUG :: request.user.is_authenticated =", user.is_authenticated)
+            print("DEBUG :: MISTRAL_API_KEY =", settings.MISTRAL_API_KEY)
+
+
             current_time = now()
 
             # Detect intent
